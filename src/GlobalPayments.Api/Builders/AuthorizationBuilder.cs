@@ -49,6 +49,7 @@ namespace GlobalPayments.Api.Builders {
         internal Address ShippingAddress { get; set; }
         internal string TagData { get; set; }
         internal string Timestamp { get; set; }
+        public long OpenPathTransactionId { get; set; }
 
         /// <summary>
         /// Indicates the type of account provided; see the associated Type enumerations for specific values supported.
@@ -601,6 +602,16 @@ namespace GlobalPayments.Api.Builders {
         }
 
         /// <summary>
+        /// Sets the open path transaction ID to the builder
+        /// this transactionId is returned by open path when OpenPathValidation is successful
+        /// </summary>
+        public AuthorizationBuilder WithOpenPathTransactionId(long transactionId)
+        {
+            OpenPathTransactionId = transactionId;
+            return this;
+        }
+
+        /// <summary>
         /// Validates the transaction in OpenPath platform
         /// </summary>
         /// <remarks>
@@ -621,6 +632,9 @@ namespace GlobalPayments.Api.Builders {
                     throw new BuilderException($"Transaction rejected by OpenPath: { validationResult.Message}");
                 case OpenPathStatusType.Queued:
                     throw new BuilderException($"Transaction has been put to queue by OpenPath: { validationResult.Message}");
+                case OpenPathStatusType.Approved:
+                    OpenPathTransactionId = validationResult.TransactionId;
+                    break;
             }
 
             return this;

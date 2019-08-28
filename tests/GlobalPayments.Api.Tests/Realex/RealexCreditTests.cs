@@ -9,6 +9,7 @@ namespace GlobalPayments.Api.Tests {
 
         [TestInitialize]
         public void Init() {
+
             ServicesContainer.ConfigureService(new GatewayConfig {
                 MerchantId = "heartlandgpsandbox",
                 AccountId = "api",
@@ -18,6 +19,8 @@ namespace GlobalPayments.Api.Tests {
                 ServiceUrl = "https://api.sandbox.realexpayments.com/epage-remote.cgi",
                 OpenPathApiKey = "fteaWC5MYeVKdZ2EaQASDDgCtAS4Fh2zrzW4Yyds",
                 OpenPathApiUrl = "http://localhost:35808/v1/globalpayments"
+                // OpenPathApiKey = "VgSsh3Vh24DuwjuU3fsvccZ7CSWPZQ9EaV9K6xuE",
+                // OpenPathApiUrl = "https://staging-api.openpath.io/v1/globalpayments"
             });
 
             card = new CreditCardData {
@@ -230,7 +233,7 @@ namespace GlobalPayments.Api.Tests {
         [TestMethod]
         public void TestOpenPath_Approved()
         {
-            var response = card.Charge(15m)
+            var transaction = card.Charge(15m)
                 .WithCurrency("USD")
                 .WithRecurringInfo(RecurringType.Fixed, RecurringSequence.First)
                 .WithAccountType(AccountType.CHECKING)
@@ -240,7 +243,7 @@ namespace GlobalPayments.Api.Tests {
                     Country = "United States",
                     CountryCode = "US",
                     PostalCode = "92630",
-                    Province = "California"
+                    Province = "CA"
                 })
                 .WithClientTransactionId("TRANSACTION001")
                 .WithCustomerId("1")
@@ -254,8 +257,8 @@ namespace GlobalPayments.Api.Tests {
                 .WithInvoiceNumber("INVOICE001")
                 .WithProductId("PRODUCT001")
                 .WithAllowDuplicates(true)
-                .OpenPathValidation()
-                .Execute();
+                .OpenPathValidation(); ;
+            var response = transaction.Execute();
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);
         }

@@ -13,7 +13,9 @@ namespace GlobalPayments.Api.Tests.Services {
         public CheckServiceTests() {
             service = new CheckService(new GatewayConfig {
                 SecretApiKey = "skapi_cert_MTyMAQBiHVEAewvIzXVFcmUd2UcyBge_eCpaASUp0A",
-                ServiceUrl = "https://cert.api2.heartlandportico.com"
+                ServiceUrl = "https://cert.api2.heartlandportico.com",
+                OpenPathApiKey = "fteaWC5MYeVKdZ2EaQASDDgCtAS4Fh2zrzW4Yyds",
+                OpenPathApiUrl = "http://localhost:35808/v1/globalpayments"
             });
 
             check = TestData.TestChecks.Certification();
@@ -32,6 +34,7 @@ namespace GlobalPayments.Api.Tests.Services {
                 .WithCurrency("USD")
                 .WithPaymentMethod(check)
                 .WithAddress(address)
+                .OpenPathValidation()
                 .Execute();
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode);

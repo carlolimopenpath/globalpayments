@@ -85,6 +85,14 @@ namespace GlobalPayments.Api.Tests.Portico {
                 .WithCurrency("USD")
                 .WithInvoiceNumber("1234567890")
                 .WithAllowDuplicates(true)
+                .WithAddress(new Address
+                {
+                    City = "Lake Forest",
+                    Country = "United States",
+                    CountryCode = "US",
+                    PostalCode = "92630",
+                    Province = "California"
+                })
                 .OpenPathValidation()
                 .Execute();
             Assert.IsNotNull(response);

@@ -175,6 +175,8 @@ namespace GlobalPayments.Api.Gateways {
             var mapResponse = MapResponse(response, MapAcceptedCodes(transactionType));
             if (builder.MultiCapture)
                 mapResponse.MultiCapture = builder.MultiCapture;
+
+            SaveTransactionIdToOpenPath(builder, mapResponse.TransactionId);
             return mapResponse;
         }
 
@@ -416,6 +418,26 @@ namespace GlobalPayments.Api.Gateways {
             var openPathTransaction = new OpenPathTransaction().MapData(builder);
             openPathTransaction.OpenPathApiKey = OpenPathApiKey;
             return OpenPathGateway.SendRequest(JsonConvert.SerializeObject(openPathTransaction), OpenPathApiUrl);
+        }
+        #endregion
+
+        #region Sends the transaction Id to OpenPath
+        private void SaveTransactionIdToOpenPath(AuthorizationBuilder builder, string transactionId)
+        {
+            if (!string.IsNullOrWhiteSpace(OpenPathApiKey) &&
+                !string.IsNullOrWhiteSpace(OpenPathApiUrl) &&
+                builder.OpenPathTransactionId != 0)
+            {
+                OpenPathGateway.SendRequest(
+                    JsonConvert.SerializeObject(
+                        new {
+                            PaymentTransactionId = transactionId,
+                            OpenPathTransactionId = builder.OpenPathTransactionId
+                        }
+                    ), 
+                    $"{OpenPathApiUrl}/updatetransactionid"
+                );
+            }
         }
         #endregion
 
