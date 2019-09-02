@@ -34,7 +34,6 @@ namespace GlobalPayments.Api.Tests.Services {
                 .WithCurrency("USD")
                 .WithPaymentMethod(check)
                 .WithAddress(address)
-                .OpenPathValidation()
                 .Execute();
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode);

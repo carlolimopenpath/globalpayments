@@ -93,7 +93,6 @@ namespace GlobalPayments.Api.Tests.Portico {
                     PostalCode = "92630",
                     Province = "California"
                 })
-                .OpenPathValidation()
                 .Execute();
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode);

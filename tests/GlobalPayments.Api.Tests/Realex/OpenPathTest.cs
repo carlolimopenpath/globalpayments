@@ -58,8 +58,7 @@ namespace GlobalPayments.Api.Tests.Realex
             var transaction = creditCard
                 .Charge(19.95m)
                 .WithAddress(address)
-                .WithCurrency("USD")
-            .OpenPathValidation();
+                .WithCurrency("USD");
             var result = transaction.Execute();
         }
     }

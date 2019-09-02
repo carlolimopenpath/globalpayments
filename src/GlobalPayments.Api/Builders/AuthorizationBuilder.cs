@@ -601,45 +601,6 @@ namespace GlobalPayments.Api.Builders {
             throw new UnsupportedTransactionException("You current gateway does not support hosted payments.");
         }
 
-        /// <summary>
-        /// Sets the open path transaction ID to the builder
-        /// this transactionId is returned by open path when OpenPathValidation is successful
-        /// </summary>
-        public AuthorizationBuilder WithOpenPathTransactionId(long transactionId)
-        {
-            OpenPathTransactionId = transactionId;
-            return this;
-        }
-
-        /// <summary>
-        /// Validates the transaction in OpenPath platform
-        /// </summary>
-        /// <remarks>
-        /// Requires the gateway to have OpenPathApiKey
-        /// </remarks>
-        public AuthorizationBuilder OpenPathValidation(string configName = "default")
-        {
-            var client = ServicesContainer.Instance.GetClient(configName);
-            var validationResult = client.ProcessOpenPathValidation(this);
-
-            switch (validationResult.Status)
-            {
-                case OpenPathStatusType.Declined:
-                    throw new BuilderException($"Transaction declined by OpenPath: { validationResult.Message}");
-                case OpenPathStatusType.Error:
-                    throw new BuilderException($"Transaction encountered an error in OpenPath: { validationResult.Message}");
-                case OpenPathStatusType.Rejected:
-                    throw new BuilderException($"Transaction rejected by OpenPath: { validationResult.Message}");
-                case OpenPathStatusType.Queued:
-                    throw new BuilderException($"Transaction has been put to queue by OpenPath: { validationResult.Message}");
-                case OpenPathStatusType.Approved:
-                    OpenPathTransactionId = validationResult.TransactionId;
-                    break;
-            }
-
-            return this;
-        }
-
         protected override void SetupValidations() {
             Validations.For(TransactionType.Auth | TransactionType.Sale | TransactionType.Refund | TransactionType.AddValue)
                 .With(TransactionModifier.None)

@@ -5,7 +5,6 @@ using GlobalPayments.Api.Builders;
 using GlobalPayments.Api.Entities;
 using GlobalPayments.Api.PaymentMethods;
 using GlobalPayments.Api.Utils;
-using Newtonsoft.Json;
 
 namespace GlobalPayments.Api.Gateways {
     internal class PorticoConnector : XmlGateway, IPaymentGateway, IReportingService {
@@ -27,6 +26,18 @@ namespace GlobalPayments.Api.Gateways {
 
         #region processing
         public Transaction ProcessAuthorization(AuthorizationBuilder builder) {
+
+            // if OpenPath ApiKey is present, perform side integration to validate the transaction in OpenPath
+            OpenPathGateway openPathGateway = null;
+            if (!string.IsNullOrWhiteSpace(OpenPathApiKey)) {
+                openPathGateway = new OpenPathGateway()
+                    .WithAuthorizationBuilder(builder)
+                    .WithOpenPathApiKey(OpenPathApiKey)
+                    .WithOpenPathApiUrl(OpenPathApiUrl);
+
+                openPathGateway.Validate();
+            }
+
             var et = new ElementTree();
 
             // build request
@@ -331,9 +342,19 @@ namespace GlobalPayments.Api.Gateways {
             }
 
             var response = DoTransaction(BuildEnvelope(et, transaction, builder.ClientTransactionId));
-            return MapResponse(response, builder.PaymentMethod);
-        }
+            var mapResponse = MapResponse(response, builder.PaymentMethod);
 
+
+            // sends the transaction id to OpenPath
+            if (openPathGateway != null && !string.IsNullOrWhiteSpace(OpenPathApiKey)) {
+                openPathGateway
+                    .WithPaymentTransactionId(mapResponse.TransactionId)
+                    .SaveTransactionId();
+            }
+
+            return mapResponse;
+        }
+        
         public string SerializeRequest(AuthorizationBuilder builder) {
             throw new UnsupportedTransactionException("Portico does not support hosted payments.");
         }
@@ -473,20 +494,6 @@ namespace GlobalPayments.Api.Gateways {
             trans.Append(transaction);
 
             return et.ToString(envelope);
-        }
-        #endregion
-
-        #region OpenPath Validation
-        public OpenPathResponse ProcessOpenPathValidation(AuthorizationBuilder builder)
-        {
-            if (string.IsNullOrWhiteSpace(OpenPathApiKey))
-                throw new BuilderException("OpenPath Api Key cannot be null or empty");
-            else if (string.IsNullOrWhiteSpace(OpenPathApiUrl))
-                throw new BuilderException("OpenPath Api Url cannot be null or empty");
-            
-            var openPathTransaction = new OpenPathTransaction().MapData(builder);
-            openPathTransaction.OpenPathApiKey = OpenPathApiKey;
-            return OpenPathGateway.SendRequest(JsonConvert.SerializeObject(openPathTransaction), OpenPathApiUrl);
         }
         #endregion
 

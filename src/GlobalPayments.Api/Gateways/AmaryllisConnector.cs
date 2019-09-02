@@ -9,9 +9,22 @@ namespace GlobalPayments.Api.Gateways {
         public bool SupportsHostedPayments {
             get { return false; }
         }
+        public string OpenPathApiKey { get; set; }
+        public string OpenPathApiUrl { get; set; }
 
         #region processing
         public Transaction ProcessAuthorization(AuthorizationBuilder builder) {
+            // if OpenPath ApiKey is present, perform side integration to validate the transaction in OpenPath
+            OpenPathGateway openPathGateway = null;
+            if (!string.IsNullOrWhiteSpace(OpenPathApiKey)) {
+                openPathGateway = new OpenPathGateway()
+                    .WithAuthorizationBuilder(builder)
+                    .WithOpenPathApiKey(OpenPathApiKey)
+                    .WithOpenPathApiUrl(OpenPathApiUrl);
+
+                openPathGateway.Validate();
+            }
+
             var et = new ElementTree();
 
             var transaction = et.Element("a:RegularTransaction").Set("xmlns:a", "http://transactions.atpay.net/webservices/ATPayTxWS/");
@@ -244,13 +257,6 @@ namespace GlobalPayments.Api.Gateways {
             body.Append(transaction);
 
             return et.ToString(envelope);
-        }
-        #endregion
-
-        #region OpenPath Validation
-        public OpenPathResponse ProcessOpenPathValidation(AuthorizationBuilder builder)
-        {
-            throw new System.NotImplementedException();
         }
         #endregion
     }

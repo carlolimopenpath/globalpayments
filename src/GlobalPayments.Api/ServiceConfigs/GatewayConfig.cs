@@ -118,9 +118,9 @@ namespace GlobalPayments.Api {
         public string OpenPathApiKey { get; set; }
 
         /// <summary>
-        /// The OpenPath Api key for side integration in OpenPath platform
+        /// Optional: The OpenPath Api URL where the data will be posted for side integration in OpenPath platform
         /// </summary>
-        public string OpenPathApiUrl { get; set; }
+        public string OpenPathApiUrl { get; set; } = "https://api-app.openpath.io/v1/globalpayments";
 
         internal override void ConfigureContainer(ConfiguredServices services) {
             if (!string.IsNullOrEmpty(MerchantId)) {

@@ -78,7 +78,6 @@ namespace GlobalPayments.Api.Tests {
             var response = card.Charge(15m)
                 .WithCurrency("USD")
                 .WithAllowDuplicates(true)
-                .OpenPathValidation()
                 .Execute();
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);
@@ -90,7 +89,6 @@ namespace GlobalPayments.Api.Tests {
                 .WithCurrency("USD")
                 .WithRecurringInfo(RecurringType.Fixed, RecurringSequence.First)
                 .WithAllowDuplicates(true)
-                .OpenPathValidation()
                 .Execute();
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);
@@ -224,7 +222,6 @@ namespace GlobalPayments.Api.Tests {
                 .WithInvoiceNumber("INVOICE001")
                 .WithProductId("PRODUCT001")
                 .WithAllowDuplicates(true)
-                .OpenPathValidation()
                 .Execute();
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);
@@ -256,8 +253,7 @@ namespace GlobalPayments.Api.Tests {
                 })
                 .WithInvoiceNumber("INVOICE001")
                 .WithProductId("PRODUCT001")
-                .WithAllowDuplicates(true)
-                .OpenPathValidation(); ;
+                .WithAllowDuplicates(true);
             var response = transaction.Execute();
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);

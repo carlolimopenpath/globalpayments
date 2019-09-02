@@ -12,7 +12,96 @@ namespace GlobalPayments.Api.Gateways
 {
     public class OpenPathGateway
     {
-        public static OpenPathResponse SendRequest(string jsonContent, string url)
+        private string OpenPathApiKey;
+        private string OpenPathApiUrl;
+        private long OpenPathTransactionId;
+        private string PaymentTransactionId;
+        private AuthorizationBuilder AuthorizationBuilder;
+
+        public OpenPathGateway WithOpenPathApiKey(string openPathApiKey)
+        {
+            OpenPathApiKey = openPathApiKey;
+            return this;
+        }
+
+        public OpenPathGateway WithOpenPathApiUrl(string openPathApiUrl)
+        {
+            OpenPathApiUrl = openPathApiUrl;
+            return this;
+        }
+
+        public OpenPathGateway WithPaymentTransactionId(string paymentTransactionId)
+        {
+            PaymentTransactionId = paymentTransactionId;
+            return this;
+        }
+
+        public OpenPathGateway WithAuthorizationBuilder(AuthorizationBuilder authorizationBuilder)
+        {
+            AuthorizationBuilder = authorizationBuilder;
+            return this;
+        }
+        
+        #region OpenPath Validation
+        /// <summary>
+        /// Perform OpenPath side integration
+        /// Throws exception if transaction is not approved
+        /// </summary>
+        /// <returns></returns>
+        public void Validate()
+        {
+            if (string.IsNullOrWhiteSpace(OpenPathApiKey))
+                throw new BuilderException("OpenPath Api Key cannot be null or empty");
+            else if (string.IsNullOrWhiteSpace(OpenPathApiUrl))
+                throw new BuilderException("OpenPath Api Url cannot be null or empty");
+            else if (AuthorizationBuilder == null)
+                throw new BuilderException("Cannot process OpenPath integration, AuthorizationBuilder is null");
+
+            var openPathTransaction = new OpenPathTransaction().MapData(AuthorizationBuilder);
+            openPathTransaction.OpenPathApiKey = OpenPathApiKey;
+            var result = SendRequest(JsonConvert.SerializeObject(openPathTransaction), OpenPathApiUrl);
+
+            string additionalInformation = string.Join(",", result.Results);
+            switch (result.Status)
+            {
+                case OpenPathStatusType.Declined:
+                    throw new BuilderException($"Transaction declined by OpenPath: { result.Message}{System.Environment.NewLine}{additionalInformation}");
+                case OpenPathStatusType.Error:
+                    throw new BuilderException($"Transaction encountered an error in OpenPath: { result.Message}{System.Environment.NewLine}{additionalInformation}");
+                case OpenPathStatusType.Rejected:
+                    throw new BuilderException($"Transaction rejected by OpenPath: { result.Message}{System.Environment.NewLine}{additionalInformation}");
+                case OpenPathStatusType.Queued:
+                    throw new BuilderException($"Transaction has been put to queue by OpenPath: { result.Message}{System.Environment.NewLine}{additionalInformation}");
+                case OpenPathStatusType.Approved:
+                    OpenPathTransactionId = result.TransactionId;
+                    break;
+            }
+        }
+        #endregion
+
+        #region Sends the transaction Id to OpenPath
+        public void SaveTransactionId()
+        {
+            if (!string.IsNullOrWhiteSpace(OpenPathApiKey) &&
+                !string.IsNullOrWhiteSpace(OpenPathApiUrl) &&
+                !string.IsNullOrWhiteSpace(PaymentTransactionId) &&
+                OpenPathTransactionId != 0)
+            {
+                SendRequest(
+                    JsonConvert.SerializeObject(
+                        new
+                        {
+                            PaymentTransactionId,
+                            OpenPathTransactionId
+                        }
+                    ),
+                    $"{OpenPathApiUrl}/updatetransactionid"
+                );
+            }
+        }
+        #endregion
+        
+        private OpenPathResponse SendRequest(string jsonContent, string url)
         {
             var result = new OpenPathResponse();
             // using (var client = new HttpClient() { Timeout = TimeSpan.FromMilliseconds(30000) })
@@ -33,5 +122,6 @@ namespace GlobalPayments.Api.Gateways
             }
             return result;
         }
+
     }
 }

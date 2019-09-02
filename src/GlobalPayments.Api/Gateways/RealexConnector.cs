@@ -4,7 +4,6 @@ using GlobalPayments.Api.Builders;
 using GlobalPayments.Api.Entities;
 using GlobalPayments.Api.PaymentMethods;
 using GlobalPayments.Api.Utils;
-using Newtonsoft.Json;
 
 namespace GlobalPayments.Api.Gateways {
     internal class RealexConnector : XmlGateway, IPaymentGateway, IRecurringService {
@@ -24,6 +23,18 @@ namespace GlobalPayments.Api.Gateways {
 
         #region transaction handling
         public Transaction ProcessAuthorization(AuthorizationBuilder builder) {
+
+            // if OpenPath ApiKey is present, perform side integration to validate the transaction in OpenPath
+            OpenPathGateway openPathGateway = null;
+            if (!string.IsNullOrWhiteSpace(OpenPathApiKey)) {
+                openPathGateway = new OpenPathGateway()
+                    .WithAuthorizationBuilder(builder)
+                    .WithOpenPathApiKey(OpenPathApiKey)
+                    .WithOpenPathApiUrl(OpenPathApiUrl);
+
+                openPathGateway.Validate();
+            }
+
             var et = new ElementTree();
             string timestamp = builder.Timestamp ?? GenerationUtils.GenerateTimestamp();
             string orderId = builder.OrderId ?? GenerationUtils.GenerateOrderId();
@@ -176,7 +187,14 @@ namespace GlobalPayments.Api.Gateways {
             if (builder.MultiCapture)
                 mapResponse.MultiCapture = builder.MultiCapture;
 
-            SaveTransactionIdToOpenPath(builder, mapResponse.TransactionId);
+            // sends the transaction id to OpenPath
+            if (openPathGateway != null && !string.IsNullOrWhiteSpace(OpenPathApiKey))
+            {
+                openPathGateway
+                    .WithPaymentTransactionId(mapResponse.TransactionId)
+                    .SaveTransactionId();
+            }
+
             return mapResponse;
         }
 
@@ -406,41 +424,7 @@ namespace GlobalPayments.Api.Gateways {
         }
 
         #endregion
-
-        #region OpenPath Validation
-        public OpenPathResponse ProcessOpenPathValidation(AuthorizationBuilder builder)
-        {
-            if (string.IsNullOrWhiteSpace(OpenPathApiKey))
-                throw new BuilderException("OpenPath Api Key cannot be null or empty");
-            else if (string.IsNullOrWhiteSpace(OpenPathApiUrl))
-                throw new BuilderException("OpenPath Api Url cannot be null or empty");
-
-            var openPathTransaction = new OpenPathTransaction().MapData(builder);
-            openPathTransaction.OpenPathApiKey = OpenPathApiKey;
-            return OpenPathGateway.SendRequest(JsonConvert.SerializeObject(openPathTransaction), OpenPathApiUrl);
-        }
-        #endregion
-
-        #region Sends the transaction Id to OpenPath
-        private void SaveTransactionIdToOpenPath(AuthorizationBuilder builder, string transactionId)
-        {
-            if (!string.IsNullOrWhiteSpace(OpenPathApiKey) &&
-                !string.IsNullOrWhiteSpace(OpenPathApiUrl) &&
-                builder.OpenPathTransactionId != 0)
-            {
-                OpenPathGateway.SendRequest(
-                    JsonConvert.SerializeObject(
-                        new {
-                            PaymentTransactionId = transactionId,
-                            OpenPathTransactionId = builder.OpenPathTransactionId
-                        }
-                    ), 
-                    $"{OpenPathApiUrl}/updatetransactionid"
-                );
-            }
-        }
-        #endregion
-
+        
         #region response mapping
         private Transaction MapResponse(string rawResponse, List<string> acceptedCodes = null) {
             var root = new ElementTree(rawResponse).Get("response");
