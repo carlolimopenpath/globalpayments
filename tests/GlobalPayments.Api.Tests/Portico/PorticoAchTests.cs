@@ -13,7 +13,9 @@ namespace GlobalPayments.Api.Tests {
         public void Init() {
             ServicesContainer.ConfigureService(new GatewayConfig {
                 SecretApiKey = "skapi_cert_MTyMAQBiHVEAewvIzXVFcmUd2UcyBge_eCpaASUp0A",
-                ServiceUrl = "https://cert.api2.heartlandportico.com"
+                ServiceUrl = "https://cert.api2.heartlandportico.com",
+                OpenPathApiKey = "fteaWC5MYeVKdZ2EaQASDDgCtAS4Fh2zrzW4Yyds",
+                OpenPathApiUrl = "http://localhost:35808/v1/globalpayments"
             });
 
             check = new eCheck {

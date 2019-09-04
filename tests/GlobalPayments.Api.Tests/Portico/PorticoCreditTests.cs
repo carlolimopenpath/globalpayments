@@ -14,7 +14,9 @@ namespace GlobalPayments.Api.Tests {
             ServicesContainer.ConfigureService(new GatewayConfig {
                 SecretApiKey = "skapi_cert_MTeSAQAfG1UA9qQDrzl-kz4toXvARyieptFwSKP24w",
                 ServiceUrl = "https://cert.api2.heartlandportico.com",
-                UniqueDeviceId = "GSDK"
+                UniqueDeviceId = "GSDK",
+                OpenPathApiKey = "fteaWC5MYeVKdZ2EaQASDDgCtAS4Fh2zrzW4Yyds",
+                OpenPathApiUrl = "http://localhost:35808/v1/globalpayments"
             });
 
             card = new CreditCardData {
@@ -360,6 +362,26 @@ namespace GlobalPayments.Api.Tests {
         public void CreditTestWithClientTransactionId() {
             var response = card.Charge(10m)
                 .WithCurrency("USD")
+                .WithClientTransactionId("123456")
+                .Execute();
+
+            Assert.IsNotNull(response);
+            Assert.AreEqual("00", response.ResponseCode);
+        }
+
+        [TestMethod]
+        public void TestOpenPath_Approved_Processed_In_Stripe()
+        {
+            var response = card.Charge(10m)
+                .WithCurrency("USD")
+                .WithAddress(new Address
+                {
+                    City = "Manila",
+                    Country = "Philippines",
+                    CountryCode = "PH",
+                    PostalCode = "1772",
+                    Province = "00"
+                })
                 .WithClientTransactionId("123456")
                 .Execute();
 

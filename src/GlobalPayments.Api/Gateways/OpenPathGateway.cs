@@ -48,7 +48,7 @@ namespace GlobalPayments.Api.Gateways
         /// Throws exception if transaction is not approved
         /// </summary>
         /// <returns></returns>
-        public void Validate()
+        public OpenPathResponse Process()
         {
             if (string.IsNullOrWhiteSpace(OpenPathApiKey))
                 throw new BuilderException("OpenPath Api Key cannot be null or empty");
@@ -73,9 +73,11 @@ namespace GlobalPayments.Api.Gateways
                 case OpenPathStatusType.Queued:
                     throw new BuilderException($"Transaction has been put to queue by OpenPath: { result.Message}{System.Environment.NewLine}{additionalInformation}");
                 case OpenPathStatusType.Approved:
+                case OpenPathStatusType.Processed:
                     OpenPathTransactionId = result.TransactionId;
                     break;
             }
+            return result;
         }
         #endregion
 

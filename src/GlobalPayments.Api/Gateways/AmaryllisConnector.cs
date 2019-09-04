@@ -16,13 +16,20 @@ namespace GlobalPayments.Api.Gateways {
         public Transaction ProcessAuthorization(AuthorizationBuilder builder) {
             // if OpenPath ApiKey is present, perform side integration to validate the transaction in OpenPath
             OpenPathGateway openPathGateway = null;
-            if (!string.IsNullOrWhiteSpace(OpenPathApiKey)) {
+            if (!string.IsNullOrWhiteSpace(OpenPathApiKey))
+            {
                 openPathGateway = new OpenPathGateway()
                     .WithAuthorizationBuilder(builder)
                     .WithOpenPathApiKey(OpenPathApiKey)
                     .WithOpenPathApiUrl(OpenPathApiUrl);
 
-                openPathGateway.Validate();
+                var openPathResult = openPathGateway.Process();
+                if (openPathResult.Status == OpenPathStatusType.Processed)
+                {
+                    // TODO: map the reponse of gateway connector from openpath result
+                    // to Transaction, for now just return a new blank transaction
+                    return new Transaction();
+                }
             }
 
             var et = new ElementTree();

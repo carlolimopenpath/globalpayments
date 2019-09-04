@@ -15,5 +15,7 @@ namespace GlobalPayments.Api.Entities
         public string Message { get; set; }
         public long TransactionId { get; set; }
         public List<string> Results { get; set; }
+        public OpenPathResultModel GatewayConnectorResult { get; set; }
+        public GatewayConfig BouncebackConfig { get; set; }
     }
 }

@@ -951,7 +951,9 @@ namespace GlobalPayments.Api.Entities {
         Rejected,
         Error,
         Queued,
-        Pending
+        Pending,
+        Processed,
+        BouncedBack
     }
 
     internal class DataServiceReportTypes {

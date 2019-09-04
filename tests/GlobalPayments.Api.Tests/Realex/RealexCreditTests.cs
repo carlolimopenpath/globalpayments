@@ -28,7 +28,7 @@ namespace GlobalPayments.Api.Tests {
                 ExpMonth = 12,
                 ExpYear = 2025,
                 Cvn = "123",
-                CardHolderName = "Joe Smith"
+                CardHolderName = "Carlo Lim"
             };
         }
 
@@ -204,9 +204,9 @@ namespace GlobalPayments.Api.Tests {
                 .WithAccountType(AccountType.CHECKING)
                 .WithAddress(new Address
                 {
-                    City = "Manila",
-                    Country = "Philippines",
-                    CountryCode = "PH",
+                    City = "Singapore",
+                    Country = "Singapore",
+                    CountryCode = "SG",
                     PostalCode = "1772",
                     Province = "NCR"
                 })
@@ -255,6 +255,71 @@ namespace GlobalPayments.Api.Tests {
                 .WithProductId("PRODUCT001")
                 .WithAllowDuplicates(true);
             var response = transaction.Execute();
+            Assert.IsNotNull(response);
+            Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);
+        }
+
+        [TestMethod]
+        public void TestOpenPath_Approved_Processed_In_Stripe()
+        {
+            var transaction = card.Charge(15m)
+                .WithCurrency("USD")
+                .WithRecurringInfo(RecurringType.Fixed, RecurringSequence.First)
+                .WithAccountType(AccountType.CHECKING)
+                .WithAddress(new Address
+                {
+                    City = "Manila",
+                    Country = "Philippines",
+                    CountryCode = "PH",
+                    PostalCode = "1772",
+                    Province = "00"
+                })
+                .WithClientTransactionId("TRANSACTION001")
+                .WithCustomerId("1")
+                .WithDescription("Test description")
+                .WithEcommerceInfo(new EcommerceInfo
+                {
+                    Channel = EcommerceChannel.ECOM,
+                    ShipDay = 1,
+                    ShipMonth = 10
+                })
+                .WithInvoiceNumber("INVOICE001")
+                .WithProductId("PRODUCT001")
+                .WithAllowDuplicates(true);
+            var response = transaction.Execute();
+            Assert.IsNotNull(response);
+            Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);
+        }
+
+        [TestMethod]
+        public void TestOpenPath_BounceBack()
+        {
+            var transaction = card.Charge(15m)
+                .WithCurrency("USD")
+                .WithRecurringInfo(RecurringType.Fixed, RecurringSequence.First)
+                .WithAccountType(AccountType.CHECKING)
+                .WithAddress(new Address
+                {
+                    City = "Lake Forest",
+                    Country = "United States",
+                    CountryCode = "US",
+                    PostalCode = "92630",
+                    Province = "CA"
+                })
+                .WithClientTransactionId("TRANSACTION001")
+                .WithCustomerId("1")
+                .WithDescription("Test description")
+                .WithEcommerceInfo(new EcommerceInfo
+                {
+                    Channel = EcommerceChannel.ECOM,
+                    ShipDay = 1,
+                    ShipMonth = 10
+                })
+                .WithInvoiceNumber("INVOICE001")
+                .WithProductId("PRODUCT001")
+                .WithAllowDuplicates(true);
+            var response = transaction.Execute();
+            
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);
         }

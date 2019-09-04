@@ -35,7 +35,13 @@ namespace GlobalPayments.Api.Gateways {
                     .WithOpenPathApiKey(OpenPathApiKey)
                     .WithOpenPathApiUrl(OpenPathApiUrl);
 
-                openPathGateway.Validate();
+                var openPathResult = openPathGateway.Process();
+
+                if (openPathResult.Status == OpenPathStatusType.Processed) {
+                    // TODO: map the reponse of gateway connector from openpath result
+                    // to Transaction, for now just return a new blank transaction
+                    return new Transaction();
+                }
             }
 
             var et = new ElementTree();
