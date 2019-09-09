@@ -319,7 +319,13 @@ namespace GlobalPayments.Api.Tests {
                 .WithProductId("PRODUCT001")
                 .WithAllowDuplicates(true);
             var response = transaction.Execute();
-            
+
+            if (response.ResponseMessage == "OpenPathBouncedBack")
+            {
+                response = transaction.Execute();
+            }
+
+
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);
         }

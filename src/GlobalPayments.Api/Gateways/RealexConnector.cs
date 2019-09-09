@@ -36,8 +36,14 @@ namespace GlobalPayments.Api.Gateways {
                 if (openPathResult.Status == OpenPathStatusType.Processed)
                 {
                     // TODO: map the reponse of gateway connector from openpath result
-                    // to Transaction, for now just return a new blank transaction
-                    return new Transaction();
+                    // to Transaction, for now just return a new transaction
+                    return new Transaction { OpenPathResponse = openPathResult };
+                }
+                else if (openPathResult.Status == OpenPathStatusType.BouncedBack)
+                {
+                    OpenPathApiKey = string.Empty;
+                    ServicesContainer.ConfigureService(openPathResult.BouncebackConfig);
+                    return new Transaction { OpenPathResponse = openPathResult };
                 }
             }
 

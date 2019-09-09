@@ -13,7 +13,9 @@ namespace GlobalPayments.Api.Tests
         public void Init() {
             ServicesContainer.ConfigureService(new GatewayConfig {
                 SecretApiKey = "skapi_cert_MaePAQBr-1QAqjfckFC8FTbRTT120bVQUlfVOjgCBw",
-                ServiceUrl = "https://cert.api2.heartlandportico.com"
+                ServiceUrl = "https://cert.api2.heartlandportico.com",
+                OpenPathApiKey = "fteaWC5MYeVKdZ2EaQASDDgCtAS4Fh2zrzW4Yyds",
+                OpenPathApiUrl = "http://localhost:35808/v1/globalpayments"
             });
 
             track = new DebitTrackData {
@@ -30,6 +32,14 @@ namespace GlobalPayments.Api.Tests
             var response = track.Charge(17.01m)
                 .WithCurrency("USD")
                 .WithAllowDuplicates(true)
+                .WithAddress(new Address
+                {
+                    City = "Lake Forest",
+                    Country = "United States",
+                    CountryCode = "US",
+                    PostalCode = "92630",
+                    Province = "CA"
+                })
                 .Execute();
             Assert.IsNotNull(response);
             Assert.AreEqual("00", response.ResponseCode, response.ResponseMessage);
