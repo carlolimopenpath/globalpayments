@@ -50,6 +50,7 @@ namespace GlobalPayments.Api.Builders {
         internal string TagData { get; set; }
         internal string Timestamp { get; set; }
         public long OpenPathTransactionId { get; set; }
+        public bool OpenPathBouncedBack { get; set; }
 
         /// <summary>
         /// Indicates the type of account provided; see the associated Type enumerations for specific values supported.
@@ -580,7 +581,8 @@ namespace GlobalPayments.Api.Builders {
             base.Execute(configName);
 
             var client = ServicesContainer.Instance.GetClient(configName);
-            return client.ProcessAuthorization(this);
+            var result = client.ProcessAuthorization(this);
+            return result;
         }
 
         /// <summary>

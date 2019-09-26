@@ -36,17 +36,22 @@ namespace GlobalPayments.Api.Gateways {
                     .WithOpenPathApiUrl(OpenPathApiUrl);
 
                 var openPathResult = openPathGateway.Process();
+
+                // if the transaction is already processed by OpenPath just return a new transaction for now
                 if (openPathResult.Status == OpenPathStatusType.Processed)
                 {
-                    // TODO: map the reponse of gateway connector from openpath result
-                    // to Transaction, for now just return a new transaction
+                    // TODO: map the reponse of gateway connector from openpath result to Transaction
                     return new Transaction { OpenPathResponse = openPathResult };
                 }
                 else if (openPathResult.Status == OpenPathStatusType.BouncedBack)
                 {
-                    OpenPathApiKey = string.Empty;
+                    // this means that the transaction is validated in OpenPath
+                    // and a new GatewayConfiguration object is returned
+                    // the configuration can be found in OpenPath > Connectors
+
+                    //OpenPathApiKey = string.Empty;
                     ServicesContainer.ConfigureService(openPathResult.BouncebackConfig);
-                    return new Transaction { OpenPathResponse = openPathResult };
+                    //return new Transaction { OpenPathResponse = openPathResult };
                 }
             }
 

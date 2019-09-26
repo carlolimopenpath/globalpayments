@@ -67,13 +67,14 @@ namespace GlobalPayments.Api.Gateways
                 case OpenPathStatusType.Declined:
                     throw new BuilderException($"Transaction declined by OpenPath: { result.Message}{System.Environment.NewLine}{additionalInformation}");
                 case OpenPathStatusType.Error:
-                    throw new BuilderException($"Transaction encountered an error in OpenPath: { result.Message}{System.Environment.NewLine}{additionalInformation}");
+                    throw new BuilderException($"{ result.Message}{System.Environment.NewLine}{additionalInformation}");
                 case OpenPathStatusType.Rejected:
                     throw new BuilderException($"Transaction rejected by OpenPath: { result.Message}{System.Environment.NewLine}{additionalInformation}");
                 case OpenPathStatusType.Queued:
                     throw new BuilderException($"Transaction has been put to queue by OpenPath: { result.Message}{System.Environment.NewLine}{additionalInformation}");
                 case OpenPathStatusType.Approved:
                 case OpenPathStatusType.Processed:
+                case OpenPathStatusType.BouncedBack:
                     OpenPathTransactionId = result.TransactionId;
                     break;
             }
