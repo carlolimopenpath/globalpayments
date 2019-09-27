@@ -26,35 +26,6 @@ namespace GlobalPayments.Api.Gateways {
 
         #region processing
         public Transaction ProcessAuthorization(AuthorizationBuilder builder) {
-
-            // if OpenPath ApiKey is present, perform side integration to validate the transaction in OpenPath
-            OpenPathGateway openPathGateway = null;
-            if (!string.IsNullOrWhiteSpace(OpenPathApiKey)) {
-                openPathGateway = new OpenPathGateway()
-                    .WithAuthorizationBuilder(builder)
-                    .WithOpenPathApiKey(OpenPathApiKey)
-                    .WithOpenPathApiUrl(OpenPathApiUrl);
-
-                var openPathResult = openPathGateway.Process();
-
-                // if the transaction is already processed by OpenPath just return a new transaction for now
-                if (openPathResult.Status == OpenPathStatusType.Processed)
-                {
-                    // TODO: map the reponse of gateway connector from openpath result to Transaction
-                    return new Transaction { OpenPathResponse = openPathResult };
-                }
-                else if (openPathResult.Status == OpenPathStatusType.BouncedBack)
-                {
-                    // this means that the transaction is validated in OpenPath
-                    // and a new GatewayConfiguration object is returned
-                    // the configuration can be found in OpenPath > Connectors
-
-                    //OpenPathApiKey = string.Empty;
-                    ServicesContainer.ConfigureService(openPathResult.BouncebackConfig);
-                    //return new Transaction { OpenPathResponse = openPathResult };
-                }
-            }
-
             var et = new ElementTree();
 
             // build request
@@ -360,15 +331,7 @@ namespace GlobalPayments.Api.Gateways {
 
             var response = DoTransaction(BuildEnvelope(et, transaction, builder.ClientTransactionId));
             var mapResponse = MapResponse(response, builder.PaymentMethod);
-
-
-            // sends the transaction id to OpenPath
-            if (openPathGateway != null && !string.IsNullOrWhiteSpace(OpenPathApiKey)) {
-                openPathGateway
-                    .WithPaymentTransactionId(mapResponse.TransactionId)
-                    .SaveTransactionId();
-            }
-
+            
             return mapResponse;
         }
         
