@@ -8,15 +8,54 @@ namespace GlobalPayments.Api.Tests {
     {
         eCheck check;
         Address address;
+        eCheck activateCard1;
+        eCheck activateCard2;
+        eCheck activateCard3;
+
 
         [TestInitialize]
         public void Init() {
             ServicesContainer.ConfigureService(new GatewayConfig {
-                SecretApiKey = "skapi_cert_MTyMAQBiHVEAewvIzXVFcmUd2UcyBge_eCpaASUp0A",
+                SecretApiKey = "skapi_cert_MTYcAgCxWWEAp8AlBkChNfvTSWWkjf-nkAw2cdoijg",
                 ServiceUrl = "https://cert.api2.heartlandportico.com",
-                OpenPathApiKey = "fteaWC5MYeVKdZ2EaQASDDgCtAS4Fh2zrzW4Yyds",
+                // OpenPathApiKey = "fteaWC5MYeVKdZ2EaQASDDgCtAS4Fh2zrzW4Yyds",
                 OpenPathApiUrl = "http://localhost:35808/v1/globalpayments"
             });
+
+            activateCard1 = new eCheck
+            {
+                CheckHolderName = "First Last",
+                RoutingNumber = "122000030",
+                AccountNumber = "1357902468",
+                EntryMode = EntryMethod.Manual,
+                SecCode = "WEB",
+                AccountType = AccountType.CHECKING,
+                CheckType = CheckType.PERSONAL,
+            };
+
+            activateCard2 = new eCheck
+            {
+                CheckHolderName = "First Last",
+                RoutingNumber = "122000030",
+                AccountNumber = "1357902468",
+                EntryMode = EntryMethod.Manual,
+                SecCode = "WEB",
+                AccountType = AccountType.SAVINGS,
+                CheckType = CheckType.PERSONAL,
+            };
+
+
+            activateCard3 = new eCheck
+            {
+                CheckHolderName = "First Last",
+                RoutingNumber = "122000030",
+                AccountNumber = "1357902468",
+                EntryMode = EntryMethod.Manual,
+                SecCode = "WEB",
+                AccountType = AccountType.SAVINGS,
+                CheckType = CheckType.BUSINESS,
+                CheckName = "First Last"
+            };
 
             check = new eCheck {
                 AccountNumber = "24413815",
@@ -30,7 +69,8 @@ namespace GlobalPayments.Api.Tests {
                 DriversLicenseState = "TX",
                 PhoneNumber = "8003214567",
                 BirthYear = 1997,
-                SsnLast4 = "4321"
+                SsnLast4 = "4321",
+                CheckName = ""
             };
 
             address = new Address {
@@ -40,6 +80,29 @@ namespace GlobalPayments.Api.Tests {
                 PostalCode = "12345"
             };
         }
+
+        [TestMethod]
+        public void ActivateTest()
+        {
+            //var transaction1 = activateCard1
+            //    .Charge(1.23m)
+            //    .WithCurrency("USD")
+            //    .WithAddress(address)
+            //    .Execute();
+
+            //var transaction2 = activateCard2
+            //    .Charge(12.34m)
+            //    .WithCurrency("USD")
+            //    .WithAddress(address)
+            //    .Execute();
+
+            var transaction3 = activateCard3
+                .Charge(123.45m)
+                .WithCurrency("USD")
+                .WithAddress(address)
+                .Execute();
+        }
+
 
         [TestMethod]
         public void CheckSale() {

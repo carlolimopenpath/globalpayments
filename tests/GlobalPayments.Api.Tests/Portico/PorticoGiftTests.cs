@@ -11,8 +11,10 @@ namespace GlobalPayments.Api.Tests {
 
         [TestInitialize]
         public void Init() {
-            ServicesContainer.ConfigureService(new GatewayConfig {
-                SecretApiKey = "skapi_cert_MaePAQBr-1QAqjfckFC8FTbRTT120bVQUlfVOjgCBw",
+            ServicesContainer.ConfigureService(new GatewayConfig
+            {
+                SecretApiKey = "skapi_cert_MTYcAgCxWWEAp8AlBkChNfvTSWWkjf-nkAw2cdoijg", // Openpath
+                // SecretApiKey = "skapi_cert_MaePAQBr-1QAqjfckFC8FTbRTT120bVQUlfVOjgCBw",
                 ServiceUrl = "https://cert.api2.heartlandportico.com"
             });
 

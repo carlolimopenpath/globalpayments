@@ -380,7 +380,8 @@ namespace GlobalPayments.Api.Tests {
                     Country = "Philippines",
                     CountryCode = "PH",
                     PostalCode = "1772",
-                    Province = "00"
+                    Province = "00",
+                    StreetAddress1 = "181 San Guillermo Street"
                 })
                 .WithClientTransactionId("123456")
                 .Execute();
