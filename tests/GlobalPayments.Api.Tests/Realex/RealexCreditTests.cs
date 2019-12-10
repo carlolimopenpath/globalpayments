@@ -18,17 +18,17 @@ namespace GlobalPayments.Api.Tests {
                 RefundPassword = "refund",
                 ServiceUrl = "https://api.sandbox.realexpayments.com/epage-remote.cgi",
                 OpenPathApiKey = "fteaWC5MYeVKdZ2EaQASDDgCtAS4Fh2zrzW4Yyds",
-                OpenPathApiUrl = "http://localhost:35808/v1/globalpayments"
+                OpenPathApiUrl = "https://localhost:44376/v1/globalpayments"
                 // OpenPathApiKey = "VgSsh3Vh24DuwjuU3fsvccZ7CSWPZQ9EaV9K6xuE",
                 // OpenPathApiUrl = "https://staging-api.openpath.io/v1/globalpayments"
             });
 
             card = new CreditCardData {
                 Number = "4111111111111111",
-                ExpMonth = 12,
-                ExpYear = 2025,
-                Cvn = "123",
-                CardHolderName = "Carlo Lim"
+                ExpMonth = 2,
+                ExpYear = 2022,
+                Cvn = "222",
+                CardHolderName = "John Doe"
             };
         }
 

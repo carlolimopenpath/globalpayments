@@ -25,7 +25,7 @@ namespace GlobalPayments.Api.Tests.OpenPath.Realex
                 RefundPassword = "refund",
                 ServiceUrl = "https://api.sandbox.realexpayments.com/epage-remote.cgi",
                 OpenPathApiKey = "fteaWC5MYeVKdZ2EaQASDDgCtAS4Fh2zrzW4Yyds",
-                OpenPathApiUrl = "http://localhost:35808/v1/globalpayments"
+                OpenPathApiUrl = "https://localhost:44376/v1/globalpayments"
             });
 
             card = new CreditCardData

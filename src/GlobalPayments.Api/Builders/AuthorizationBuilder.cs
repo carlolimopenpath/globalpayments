@@ -584,42 +584,22 @@ namespace GlobalPayments.Api.Builders {
             var client = ServicesContainer.Instance.GetClient(configName);
 
             // initialize an OpenPathGateway to process side integration if OpenPathApiKey is provided
-            var openPathGateway = new OpenPathGateway();
-            string openPathApikey = string.Empty;
-            string openPathApiUrl = string.Empty;
+            var openPathGatewayInterface = client as IOpenPathGateway;
 
-            // try to get the key and url from the connectors
-            if (client is PorticoConnector)
-            {
-                var connector = client as PorticoConnector;
-                openPathApikey = connector.OpenPathApiKey;
-                openPathApiUrl = connector.OpenPathApiUrl;
-            }
-            else if (client is RealexConnector)
-            {
-                var connector = client as RealexConnector;
-                openPathApikey = connector.OpenPathApiKey;
-                openPathApiUrl = connector.OpenPathApiUrl;
-            }
-            else if (client is AmaryllisConnector)
-            {
-                var connector = client as AmaryllisConnector;
-                openPathApikey = connector.OpenPathApiKey;
-                openPathApiUrl = connector.OpenPathApiUrl;
-            }
+            // create a new instance of openpath gateway object
+            var openpathGateway = new OpenPathGateway()
+                                      .WithOpenPathApiKey(openPathGatewayInterface?.OpenPathApiKey)
+                                      .WithOpenPathApiUrl(openPathGatewayInterface?.OpenPathApiUrl);
 
             // process the side integration if apikey and url has value
-            if (!string.IsNullOrWhiteSpace(openPathApikey) 
-                && !string.IsNullOrWhiteSpace(openPathApiUrl))
+            if (openpathGateway.IsValidForSideIntegration())
             {
-                // build the OpenPath gateway
-                openPathGateway.WithAuthorizationBuilder(this)
-                    .WithOpenPathApiKey(openPathApikey)
-                    .WithOpenPathApiUrl(openPathApiUrl);
+                // sets the builder to the gateway
+                openpathGateway.WithAuthorizationBuilder(this);
 
                 // Perform OpenPath side integration
                 // Throws exception if transaction is declined, rejected, error, queued
-                var openPathResult = openPathGateway.Process();
+                var openPathResult = openpathGateway.Process();
 
                 // if the transaction is already processed by OpenPath just return a new transaction for now
                 if (openPathResult.Status == OpenPathStatusType.Processed)
@@ -642,10 +622,9 @@ namespace GlobalPayments.Api.Builders {
             var authorizationResult = client.ProcessAuthorization(this);
 
             // sends the transaction id to OpenPath
-            if (!string.IsNullOrWhiteSpace(openPathApikey)
-                && !string.IsNullOrWhiteSpace(openPathApiUrl))
+            if (openpathGateway.IsValidForSideIntegration())
             {
-                openPathGateway.WithPaymentTransactionId(authorizationResult.TransactionId).SaveTransactionId();
+                openpathGateway.WithPaymentTransactionId(authorizationResult.TransactionId).SaveTransactionId();
             }
 
             return authorizationResult;

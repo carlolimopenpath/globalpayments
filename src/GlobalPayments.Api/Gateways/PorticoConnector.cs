@@ -7,7 +7,7 @@ using GlobalPayments.Api.PaymentMethods;
 using GlobalPayments.Api.Utils;
 
 namespace GlobalPayments.Api.Gateways {
-    internal class PorticoConnector : XmlGateway, IPaymentGateway, IReportingService {
+    internal class PorticoConnector : XmlGateway, IPaymentGateway, IReportingService, IOpenPathGateway {
         public int SiteId { get; set; }
         public int LicenseId { get; set; }
         public int DeviceId { get; set; }

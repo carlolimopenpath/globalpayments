@@ -6,7 +6,8 @@ using GlobalPayments.Api.PaymentMethods;
 using GlobalPayments.Api.Utils;
 
 namespace GlobalPayments.Api.Gateways {
-    internal class RealexConnector : XmlGateway, IPaymentGateway, IRecurringService {
+    internal class RealexConnector : XmlGateway, IPaymentGateway, IRecurringService, IOpenPathGateway
+    {
         public string MerchantId { get; set; }
         public string AccountId { get; set; }
         public string SharedSecret { get; set; }

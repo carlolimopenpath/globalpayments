@@ -12,11 +12,11 @@ namespace GlobalPayments.Api.Gateways
 {
     public class OpenPathGateway
     {
-        private string OpenPathApiKey;
-        private string OpenPathApiUrl;
-        private long OpenPathTransactionId;
-        private string PaymentTransactionId;
-        private AuthorizationBuilder AuthorizationBuilder;
+        private string OpenPathApiKey { get; set; }
+        private string OpenPathApiUrl { get; set; }
+        private long OpenPathTransactionId { get; set; }
+        private string PaymentTransactionId { get; set; }
+        private AuthorizationBuilder AuthorizationBuilder { get; set; }
 
         public OpenPathGateway WithOpenPathApiKey(string openPathApiKey)
         {
@@ -41,7 +41,12 @@ namespace GlobalPayments.Api.Gateways
             AuthorizationBuilder = authorizationBuilder;
             return this;
         }
-        
+
+        public bool IsValidForSideIntegration()
+        {
+            return !string.IsNullOrWhiteSpace(OpenPathApiKey) && !string.IsNullOrWhiteSpace(OpenPathApiUrl);
+        }
+
         #region OpenPath Validation
         /// <summary>
         /// Perform OpenPath side integration
